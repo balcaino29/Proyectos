@@ -1,0 +1,6 @@
+# La versión de playwright DEBE coincidir con el tag de la imagen en el Dockerfile
+# (mcr.microsoft.com/playwright/python:v1.59.0-noble  ->  playwright==1.59.0).
+playwright==1.59.0
+pandas
+openpyxl
+python-dotenv

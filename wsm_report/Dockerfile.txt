@@ -1,0 +1,18 @@
+# Imagen oficial de Playwright para Python.
+# Incluye Chromium + dependencias del sistema operativo ya instaladas.
+# IMPORTANTE: el tag de esta imagen DEBE coincidir con playwright==X en
+# requirements.txt, o Playwright no encontrará el navegador en tiempo de ejecución.
+FROM mcr.microsoft.com/playwright/python:v1.59.0-noble
+
+WORKDIR /app
+
+# 1) Dependencias de Python (capa cacheable)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 2) Código de la aplicación
+COPY wms_reporte_seguro.py .
+
+# El contenedor ejecuta el reporte UNA sola vez y termina.
+# La programación diaria la maneja Azure Container Apps Jobs (cron).
+CMD ["python", "wms_reporte_seguro.py", "--run-now"]

@@ -1,0 +1,96 @@
+2026-06-16 08:55:08,758 [INFO] 🚀 Servidor 'WMS Segura' con Módulo de Alertas por Correo.
+2026-06-16 08:55:08,886 [INFO] 🤖 Iniciando proceso de extracción automatizado...
+2026-06-16 08:55:10,251 [INFO] Abriendo login: https://wms.coretec.cl/wms/vistas/login.html
+2026-06-16 08:55:12,303 [INFO] Login OK. URL actual: https://wms.coretec.cl/index.html
+2026-06-16 08:55:12,304 [INFO] Navegando al reporte: https://wms.coretec.cl/wms/vistas/reporte-stockminimo.html
+2026-06-16 08:55:12,865 [INFO] Filtros marcados. Generando reporte...
+2026-06-16 08:55:13,742 [INFO] El WMS devolvió 'No se encontraron resultados' con los filtros actuales. No hay nada que reportar hoy con esa combinación.
+2026-06-16 08:55:13,744 [WARNING] ⚠️ Sin alertas críticas hoy (o revisa el diagnóstico generado).
+2026-06-16 10:30:16,162 [INFO] 🚀 Servidor 'WMS Segura' con Módulo de Alertas por Correo.
+2026-06-16 10:30:16,254 [INFO] 🤖 Iniciando proceso de extracción automatizado...
+2026-06-16 10:30:17,478 [INFO] Abriendo login: https://wms.coretec.cl/wms/vistas/login.html
+2026-06-16 10:30:22,551 [INFO] Login OK. URL actual: https://wms.coretec.cl/index.html
+2026-06-16 10:30:22,551 [INFO] Navegando al reporte: https://wms.coretec.cl/wms/vistas/reporte-stockminimo.html
+2026-06-16 10:30:23,321 [INFO] Filtros marcados. Generando reporte...
+2026-06-16 10:30:24,364 [INFO] El WMS devolvió 'No se encontraron resultados' con los filtros actuales. No hay nada que reportar hoy con esa combinación.
+2026-06-16 10:30:24,364 [WARNING] ⚠️ Sin alertas críticas hoy (o revisa el diagnóstico generado).
+2026-06-17 08:11:20,425 [INFO] 🚀 Servidor 'WMS Segura' con Módulo de Alertas por Correo.
+2026-06-17 08:11:20,538 [INFO] 🤖 Iniciando proceso de extracción automatizado...
+2026-06-17 08:11:21,914 [INFO] Abriendo login: https://wms.coretec.cl/wms/vistas/login.html
+2026-06-17 08:11:26,557 [INFO] Login OK. URL actual: https://wms.coretec.cl/index.html
+2026-06-17 08:11:26,558 [INFO] Navegando al reporte: https://wms.coretec.cl/wms/vistas/reporte-stockminimo.html
+2026-06-17 08:11:27,049 [INFO] Filtros marcados. Generando reporte...
+2026-06-17 08:11:27,875 [INFO] El WMS devolvió 'No se encontraron resultados' con los filtros actuales. No hay nada que reportar hoy con esa combinación.
+2026-06-17 08:11:27,875 [WARNING] ⚠️ Sin alertas críticas hoy (o revisa el diagnóstico generado).
+2026-06-17 10:18:37,724 [INFO] 🚀 Servidor 'WMS Segura' con Módulo de Alertas por Correo.
+2026-06-17 10:18:37,866 [INFO] 🤖 Iniciando proceso de extracción automatizado...
+2026-06-17 10:18:40,025 [INFO] Abriendo login: https://wms.coretec.cl/wms/vistas/login.html
+2026-06-17 10:18:42,113 [INFO] Login OK. URL actual: https://wms.coretec.cl/index.html
+2026-06-17 10:18:42,114 [INFO] Navegando al reporte: https://wms.coretec.cl/wms/vistas/reporte-stockminimo.html
+2026-06-17 10:18:42,723 [INFO] Filtros marcados. Generando reporte...
+2026-06-17 10:18:43,557 [INFO] El WMS devolvió 'No se encontraron resultados' con los filtros actuales. No hay nada que reportar hoy con esa combinación.
+2026-06-17 10:18:43,558 [WARNING] ⚠️ Sin alertas críticas hoy (o revisa el diagnóstico generado).
+2026-06-17 10:25:00,176 [INFO] 🚀 Servidor 'WMS Segura' con Módulo de Alertas por Correo.
+2026-06-17 10:25:00,295 [INFO] 🤖 Iniciando proceso de extracción automatizado...
+2026-06-17 10:25:01,760 [INFO] Abriendo login: https://wms.coretec.cl/wms/vistas/login.html
+2026-06-17 10:25:04,063 [INFO] Login OK. URL actual: https://wms.coretec.cl/index.html
+2026-06-17 10:25:04,064 [INFO] Navegando al reporte: https://wms.coretec.cl/wms/vistas/reporte-stockminimo.html
+2026-06-17 10:25:06,124 [INFO] Estado de filtros -> critico=True | seguimiento=True
+2026-06-17 10:25:06,142 [INFO] Clic en Generar; esperando la petición de búsqueda (XHR/fetch)...
+2026-06-17 10:25:15,096 [ERROR] ❌ Error en el proceso: Page crashed
+2026-06-17 10:25:15,268 [WARNING] No se pudo guardar el diagnóstico: Page.screenshot: Target crashed 
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+  - fonts loaded
+
+2026-06-17 10:26:53,420 [INFO] 🚀 Servidor 'WMS Segura' con Módulo de Alertas por Correo.
+2026-06-17 10:26:53,557 [INFO] 🤖 Iniciando proceso de extracción automatizado...
+2026-06-17 10:26:54,892 [INFO] Abriendo login: https://wms.coretec.cl/wms/vistas/login.html
+2026-06-17 10:26:57,450 [INFO] Login OK. URL actual: https://wms.coretec.cl/index.html
+2026-06-17 10:26:57,451 [INFO] Navegando al reporte: https://wms.coretec.cl/wms/vistas/reporte-stockminimo.html
+2026-06-17 10:26:59,571 [INFO] Estado de filtros -> critico=True | seguimiento=True
+2026-06-17 10:26:59,612 [INFO] Clic en Generar; esperando la petición de búsqueda (XHR/fetch)...
+2026-06-17 10:27:19,956 [INFO] 🧪 Diagnóstico guardado: diagnostico\generar_sin_xhr_20260617_102719.png / .html (URL actual: https://wms.coretec.cl/wms/vistas/reporte-stockminimo.html)
+2026-06-17 10:27:19,957 [WARNING] ⚠️ Tras el clic en Generar NO se detectó ninguna petición XHR/fetch. Eso indica que el clic NO disparó la búsqueda (carrera con el JS de la página o el botón sin su handler listo). Revisa ./diagnostico.
+2026-06-17 10:27:20,333 [INFO] Tabla cargada con 20 fila(s) de datos.
+2026-06-17 10:27:20,334 [INFO] Procesando página 1...
+2026-06-17 10:27:22,414 [INFO] ✅ Excel guardado: 'Reporte_Stock_Critico_2026-06-17.xlsx' (20 filas).
+2026-06-17 10:27:22,455 [INFO] Conectando al SMTP para enviar alertas a: fmedina@seguraehijos.cl, mcampos@seguraehijos.cl, balcaino@seguraehijos.cl
+2026-06-17 10:27:24,454 [ERROR] ❌ Error al enviar el correo por SMTP: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 5a478bee46e88-3081e48e412sm25064837eec.4 - gsmtp')
+2026-06-17 10:37:09,439 [INFO] 🚀 Servidor 'WMS Segura' con Módulo de Alertas por Correo.
+2026-06-17 10:37:09,570 [INFO] 🤖 Iniciando proceso de extracción automatizado...
+2026-06-17 10:37:10,872 [INFO] Abriendo login: https://wms.coretec.cl/wms/vistas/login.html
+2026-06-17 10:37:13,663 [INFO] Login OK. URL actual: https://wms.coretec.cl/index.html
+2026-06-17 10:37:13,666 [INFO] Navegando al reporte: https://wms.coretec.cl/wms/vistas/reporte-stockminimo.html
+2026-06-17 10:37:17,077 [INFO] Estado de filtros -> critico=True | seguimiento=True
+2026-06-17 10:37:17,095 [INFO] Clic en Generar...
+2026-06-17 10:37:17,540 [INFO] Tabla cargada con 20 fila(s) de datos.
+2026-06-17 10:37:17,541 [INFO] Procesando página 1...
+2026-06-17 10:37:19,320 [INFO] ✅ Excel guardado: 'Reporte_Stock_Critico_2026-06-17.xlsx' (20 filas).
+2026-06-17 10:37:19,334 [INFO] Conectando al SMTP para enviar alertas a: fmedina@seguraehijos.cl, mcampos@seguraehijos.cl, balcaino@seguraehijos.cl,rfernandez@seguraehijos.cl,nvargas@seguraehijos.cl,lsoto@seguraehijos.cl,freinanco@seguraehijos.cl
+2026-06-17 10:37:22,196 [ERROR] ❌ Error al enviar el correo por SMTP: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials ada2fe7eead31-720878872efsm7396325137.12 - gsmtp')
+2026-06-18 09:25:16,851 [INFO] 🚀 Servidor 'WMS Segura' con Módulo de Alertas por Correo.
+2026-06-18 09:25:16,985 [INFO] 🤖 Iniciando proceso de extracción automatizado...
+2026-06-18 09:25:19,560 [INFO] Abriendo login: https://wms.coretec.cl/wms/vistas/login.html
+2026-06-18 09:25:22,683 [INFO] Login OK. URL actual: https://wms.coretec.cl/index.html
+2026-06-18 09:25:22,685 [INFO] Navegando al reporte: https://wms.coretec.cl/wms/vistas/reporte-stockminimo.html
+2026-06-18 09:25:26,084 [INFO] Estado de filtros -> critico=True | seguimiento=True
+2026-06-18 09:25:26,110 [INFO] Clic en Generar...
+2026-06-18 09:25:26,777 [INFO] Tabla cargada con 16 fila(s) de datos.
+2026-06-18 09:25:26,778 [INFO] Procesando página 1...
+2026-06-18 09:25:29,511 [INFO] ✅ Excel guardado: 'Reporte_Stock_Critico_2026-06-18.xlsx' (16 filas).
+2026-06-18 09:25:29,531 [INFO] Conectando al SMTP para enviar alertas a: fmedina@seguraehijos.cl, mcampos@seguraehijos.cl, balcaino@seguraehijos.cl,rfernandez@seguraehijos.cl,nvargas@seguraehijos.cl,lsoto@seguraehijos.cl,freinanco@seguraehijos.cl
+2026-06-18 09:25:34,368 [INFO] ✉️ Correo ejecutivo enviado con éxito.
+2026-06-19 08:19:20,017 [INFO] 🚀 Servidor 'WMS Segura' con Módulo de Alertas por Correo.
+2026-06-19 08:19:20,166 [INFO] 🤖 Iniciando proceso de extracción automatizado...
+2026-06-19 08:19:22,577 [INFO] Abriendo login: https://wms.coretec.cl/wms/vistas/login.html
+2026-06-19 08:19:25,783 [INFO] Login OK. URL actual: https://wms.coretec.cl/index.html
+2026-06-19 08:19:25,784 [INFO] Navegando al reporte: https://wms.coretec.cl/wms/vistas/reporte-stockminimo.html
+2026-06-19 08:19:28,818 [INFO] Estado de filtros -> critico=True | seguimiento=True
+2026-06-19 08:19:28,835 [INFO] Clic en Generar...
+2026-06-19 08:19:29,256 [INFO] Tabla cargada con 16 fila(s) de datos.
+2026-06-19 08:19:29,257 [INFO] Procesando página 1...
+2026-06-19 08:19:30,991 [INFO] ✅ Excel guardado: 'Reporte_Stock_Critico_2026-06-19.xlsx' (16 filas).
+2026-06-19 08:19:31,005 [INFO] Conectando al SMTP para enviar alertas a: fmedina@seguraehijos.cl, mcampos@seguraehijos.cl, balcaino@seguraehijos.cl,rfernandez@seguraehijos.cl,nvargas@seguraehijos.cl,lsoto@seguraehijos.cl,freinanco@seguraehijos.cl
+2026-06-19 08:19:36,458 [INFO] ✉️ Correo ejecutivo enviado con éxito.
