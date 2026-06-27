@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>OT6021 — Control Documental</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#1a1a2e;min-height:100vh}
+
+    /* ── LAYOUT ── */
+    #app{display:flex;min-height:100vh}
+    nav{width:220px;background:#1a1a2e;color:#fff;display:flex;flex-direction:column;flex-shrink:0;transition:width .2s}
+    nav .logo{padding:18px 16px;border-bottom:1px solid #2d2d4e}
+    nav .logo h2{font-size:14px;font-weight:700;color:#60a5fa}
+    nav .logo p{font-size:11px;color:#94a3b8;margin-top:2px}
+    nav ul{list-style:none;padding:10px 0;flex:1}
+    nav ul li a{display:flex;align-items:center;gap:10px;padding:10px 16px;color:#94a3b8;text-decoration:none;font-size:13px;border-left:3px solid transparent;transition:all .15s;white-space:nowrap}
+    nav ul li a:hover,nav ul li a.active{background:#2d2d4e;color:#fff;border-left-color:#60a5fa}
+    nav ul li a .icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+    .content{flex:1;padding:20px;overflow-x:hidden;min-width:0}
+    .view{display:none}
+    .view.active{display:block}
+
+    /* ── CARDS ── */
+    .card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+    .cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:20px}
+    .stat-card{background:#fff;border-radius:10px;padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.08);border-left:4px solid #60a5fa}
+    .stat-card.green{border-left-color:#22c55e}
+    .stat-card.yellow{border-left-color:#eab308}
+    .stat-card.red{border-left-color:#ef4444}
+    .stat-card.purple{border-left-color:#a855f7}
+    .stat-card .val{font-size:26px;font-weight:700}
+    .stat-card .lbl{font-size:11px;color:#64748b;margin-top:2px}
+
+    /* ── PAGE HEADER ── */
+    .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+    .page-header h1{font-size:19px;font-weight:700}
+
+    /* ── BUTTONS ── */
+    .btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:background .15s;white-space:nowrap}
+    .btn-primary{background:#2563eb;color:#fff}.btn-primary:hover{background:#1d4ed8}
+    .btn-success{background:#16a34a;color:#fff}.btn-success:hover{background:#15803d}
+    .btn-danger{background:#dc2626;color:#fff}.btn-danger:hover{background:#b91c1c}
+    .btn-ghost{background:#e2e8f0;color:#475569}.btn-ghost:hover{background:#cbd5e1}
+    .btn-warning{background:#d97706;color:#fff}.btn-warning:hover{background:#b45309}
+    .btn-sm{padding:5px 10px;font-size:12px}
+
+    /* ── FILTERS ── */
+    .filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+    .filters select,.filters input[type=text]{padding:7px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;background:#fff;min-width:0;flex:1 1 auto;max-width:200px}
+    .filters input[type=text]{max-width:260px}
+
+    /* ── TABLA RESPONSIVE ── */
+    .table-wrap{overflow-x:auto;border-radius:10px;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th{background:#f8fafc;color:#475569;font-weight:600;padding:10px 12px;text-align:left;white-space:nowrap;border-bottom:2px solid #e2e8f0}
+    td{padding:9px 12px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:#f8fafc}
+    .td-desc{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    @media(max-width:768px){
+      .table-wrap{border-radius:0;box-shadow:none;background:transparent}
+      table,thead,tbody,th,td,tr{display:block}
+      thead tr{display:none}
+      tr{background:#fff;border-radius:10px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.08);overflow:hidden}
+      td{display:flex;align-items:flex-start;padding:8px 14px;border-bottom:1px solid #f1f5f9;gap:10px}
+      td:last-child{border-bottom:none}
+      td::before{content:attr(data-label);font-weight:600;font-size:11px;color:#64748b;min-width:90px;flex-shrink:0;padding-top:2px}
+      td.td-actions{justify-content:flex-end;padding-top:10px;padding-bottom:10px}
+      td.td-actions::before{display:none}
+      .td-desc{max-width:none;white-space:normal}
+    }
+
+    /* ── PAGINACIÓN ── */
+    .pagination{display:flex;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap}
+    .pagination button{padding:5px 10px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;font-size:13px;cursor:pointer;color:#475569;font-weight:500}
+    .pagination button.active{background:#2563eb;color:#fff;border-color:#2563eb}
+    .pagination button:disabled{opacity:.4;cursor:default}
+    .pagination .info{font-size:12px;color:#64748b;margin-left:6px}
+
+    /* ── BADGES ── */
+    .badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+    .badge-green{background:#dcfce7;color:#16a34a}
+    .badge-blue{background:#dbeafe;color:#1d4ed8}
+    .badge-yellow{background:#fef9c3;color:#854d0e}
+    .badge-red{background:#fee2e2;color:#dc2626}
+    .badge-gray{background:#f1f5f9;color:#475569}
+    .badge-purple{background:#f3e8ff;color:#7e22ce}
+    .badge-orange{background:#ffedd5;color:#9a3412}
+
+    /* ── MODALES ── */
+    .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;align-items:center;justify-content:center;padding:16px}
+    .modal-bg.open{display:flex}
+    .modal{background:#fff;border-radius:12px;padding:26px;width:700px;max-width:100%;max-height:90vh;overflow-y:auto;position:relative}
+    .modal.wide{width:900px}
+    .modal.preview-modal{width:860px;padding:0}
+    .modal h2{font-size:16px;font-weight:700;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid #e2e8f0}
+    .modal .close{position:absolute;top:14px;right:14px;background:none;border:none;font-size:22px;cursor:pointer;color:#64748b;line-height:1}
+
+    /* ── FORMS ── */
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .form-grid.cols3{grid-template-columns:1fr 1fr 1fr}
+    .form-grid.full{grid-template-columns:1fr}
+    .form-group{display:flex;flex-direction:column;gap:4px}
+    .form-group label{font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.4px}
+    .form-group input,.form-group select,.form-group textarea{padding:8px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;color:#1a1a2e;background:#fff}
+    .form-group textarea{resize:vertical;min-height:68px}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#60a5fa;box-shadow:0 0 0 2px #dbeafe}
+    .form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid #e2e8f0}
+    @media(max-width:600px){.form-grid,.form-grid.cols3{grid-template-columns:1fr}}
+
+    /* ── DETALLE ── */
+    .detail-header{background:#1a1a2e;color:#fff;border-radius:10px;padding:18px 22px;margin-bottom:18px}
+    .detail-header h2{font-size:15px;font-weight:700;margin-bottom:4px}
+    .detail-header p{font-size:12px;color:#94a3b8}
+    .detail-meta{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:18px}
+    .meta-item{background:#fff;border-radius:8px;padding:11px 13px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+    .meta-item .m-lbl{font-size:10px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+    .meta-item .m-val{font-size:13px;color:#1a1a2e;font-weight:500}
+
+    /* ── TIMELINE ── */
+    .timeline{position:relative;padding-left:26px}
+    .timeline::before{content:'';position:absolute;left:7px;top:0;bottom:0;width:2px;background:#e2e8f0}
+    .tl-item{position:relative;margin-bottom:14px}
+    .tl-dot{position:absolute;left:-22px;top:13px;width:12px;height:12px;border-radius:50%;background:#60a5fa;border:2px solid #fff;box-shadow:0 0 0 2px #60a5fa}
+    .tl-dot.approved{background:#22c55e;box-shadow:0 0 0 2px #22c55e}
+    .tl-dot.commented{background:#eab308;box-shadow:0 0 0 2px #eab308}
+    .tl-card{background:#fff;border-radius:9px;padding:13px 15px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+    .tl-title{font-size:13px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .tl-row{display:flex;gap:16px;flex-wrap:wrap;margin-top:6px}
+    .tl-field{font-size:12px;color:#64748b}.tl-field span{color:#1a1a2e;font-weight:500}
+    .tl-obs{font-size:12px;background:#f8fafc;padding:6px 10px;border-radius:6px;margin-top:8px;border-left:3px solid #60a5fa}
+
+    /* ── ADJUNTOS ── */
+    .adj-section{background:#fff;border-radius:10px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:20px}
+    .adj-section h3{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+    .adj-list{display:flex;flex-direction:column;gap:8px}
+    .adj-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc}
+    .adj-icon{font-size:22px;flex-shrink:0}
+    .adj-info{flex:1;min-width:0}
+    .adj-name{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .adj-meta{font-size:11px;color:#64748b;margin-top:1px}
+    .adj-actions{display:flex;gap:6px;flex-shrink:0}
+    .dropzone{border:2px dashed #cbd5e1;border-radius:9px;padding:24px;text-align:center;cursor:pointer;transition:border-color .15s;margin-top:12px}
+    .dropzone:hover,.dropzone.drag-over{border-color:#60a5fa;background:#eff6ff}
+    .dropzone p{font-size:13px;color:#64748b;margin-top:4px}
+    .dropzone input[type=file]{display:none}
+
+    /* ── PREVIEW MODAL ── */
+    .preview-toolbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #e2e8f0;background:#f8fafc;border-radius:12px 12px 0 0}
+    .preview-toolbar h3{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%}
+    .preview-toolbar .preview-actions{display:flex;gap:8px}
+    .preview-body{height:75vh;overflow:auto;background:#525659;display:flex;align-items:center;justify-content:center;border-radius:0 0 12px 12px}
+    .preview-body iframe{width:100%;height:100%;border:none;border-radius:0 0 12px 12px}
+    .preview-body img{max-width:100%;max-height:100%;object-fit:contain;border-radius:0 0 12px 12px}
+    .preview-unsupported{color:#fff;text-align:center;padding:40px}
+
+    /* ── CHARTS ── */
+    .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+    .chart-box{background:#fff;border-radius:10px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+    .chart-box h3{font-size:13px;font-weight:700;margin-bottom:12px}
+    .bar-chart{display:flex;flex-direction:column;gap:7px}
+    .bar-row{display:flex;align-items:center;gap:8px;font-size:12px}
+    .bar-label{width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#475569;flex-shrink:0}
+    .bar-track{flex:1;background:#f1f5f9;border-radius:4px;height:14px;overflow:hidden}
+    .bar-fill{height:100%;border-radius:4px;background:#60a5fa;transition:width .4s}
+    .bar-count{width:28px;text-align:right;font-weight:600}
+    @media(max-width:700px){.charts-row{grid-template-columns:1fr}}
+
+    /* ── SMTP SETTINGS ── */
+    .settings-section{margin-bottom:20px}
+    .settings-section h3{font-size:13px;font-weight:700;color:#475569;margin-bottom:12px;text-transform:uppercase;letter-spacing:.4px}
+    .smtp-note{font-size:12px;color:#64748b;background:#fffbeb;border:1px solid #fde68a;border-radius:7px;padding:10px 12px;margin-bottom:14px;line-height:1.5}
+
+    /* ── EMAIL MODAL ── */
+    .email-adj-list{display:flex;flex-direction:column;gap:6px;max-height:150px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:7px;padding:8px}
+    .email-adj-item{display:flex;align-items:center;gap:8px;font-size:13px}
+    .email-adj-item label{cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+    /* ── TOAST ── */
+    #toast{position:fixed;bottom:20px;right:20px;background:#1a1a2e;color:#fff;padding:11px 18px;border-radius:8px;font-size:13px;display:none;z-index:9999;box-shadow:0 4px 14px rgba(0,0,0,.25);max-width:320px}
+    #toast.success{background:#16a34a}
+    #toast.error{background:#dc2626}
+
+    /* ── RESPONSIVE NAV ── */
+    @media(max-width:600px){
+      nav{width:52px}
+      nav .logo p,.nav-text{display:none}
+      nav .logo h2{font-size:11px}
+      .content{padding:12px}
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- NAVEGACIÓN -->
+  <nav>
+    <div class="logo">
+      <h2>OT6021</h2>
+      <p class="nav-text">Control Documental</p>
+    </div>
+    <ul>
+      <li><a href="#" class="active" onclick="showView('dashboard',this)"><span class="icon">📊</span><span class="nav-text">Dashboard</span></a></li>
+      <li><a href="#" onclick="showView('documentos',this)"><span class="icon">📄</span><span class="nav-text">Documentos</span></a></li>
+      <li><a href="#" onclick="showView('nuevo',this)"><span class="icon">➕</span><span class="nav-text">Nuevo Documento</span></a></li>
+      <li><a href="#" onclick="showView('importar',this)"><span class="icon">📥</span><span class="nav-text">Importar Excel</span></a></li>
+      <li><a href="#" onclick="showView('ajustes',this)"><span class="icon">⚙️</span><span class="nav-text">Ajustes Email</span></a></li>
+    </ul>
+  </nav>
+
+  <!-- CONTENIDO -->
+  <main class="content">
+
+    <!-- ═══ DASHBOARD ═══ -->
+    <div id="view-dashboard" class="view active">
+      <div class="page-header">
+        <h1>📊 Dashboard</h1>
+        <span id="dash-fecha" style="font-size:12px;color:#64748b"></span>
+      </div>
+      <div class="cards-grid">
+        <div class="stat-card"><div class="val" id="d-total">—</div><div class="lbl">Total Documentos</div></div>
+        <div class="stat-card yellow"><div class="val" id="d-revision">—</div><div class="lbl">En Revisión</div></div>
+        <div class="stat-card green"><div class="val" id="d-aprobados">—</div><div class="lbl">Aprobados</div></div>
+        <div class="stat-card blue"><div class="val" id="d-entregados">—</div><div class="lbl">Entregados</div></div>
+        <div class="stat-card purple"><div class="val" id="d-emisiones">—</div><div class="lbl">Total Emisiones</div></div>
+      </div>
+      <div class="charts-row">
+        <div class="chart-box"><h3>Por Disciplina</h3><div class="bar-chart" id="chart-disciplina"></div></div>
+        <div class="chart-box"><h3>Por Estatus</h3><div class="bar-chart" id="chart-estatus"></div></div>
+      </div>
+      <div class="card">
+        <h3 style="font-size:14px;font-weight:700;margin-bottom:14px">Últimos envíos</h3>
+        <div class="table-wrap">
+          <table id="tbl-recientes">
+            <thead><tr><th>Código SEH</th><th>Sala/TAG</th><th>Descripción</th><th>Estatus</th><th>Último Envío</th></tr></thead>
+            <tbody id="dash-recientes"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ DOCUMENTOS ═══ -->
+    <div id="view-documentos" class="view">
+      <div class="page-header">
+        <h1>📄 Documentos</h1>
+        <button class="btn btn-primary" onclick="irNuevo()">+ Nuevo</button>
+      </div>
+      <div class="filters">
+        <input type="text" id="f-buscar" placeholder="🔍 Buscar código o descripción…" oninput="debounceFilter()"/>
+        <select id="f-tag" onchange="resetPage();aplicarFiltros()"><option value="">Todas las Salas</option></select>
+        <select id="f-disc" onchange="resetPage();aplicarFiltros()"><option value="">Todas las Disciplinas</option></select>
+        <select id="f-crit" onchange="resetPage();aplicarFiltros()"><option value="">Criticidad</option></select>
+        <select id="f-est" onchange="resetPage();aplicarFiltros()"><option value="">Todos los Estatus</option></select>
+        <select id="f-limit" onchange="resetPage();aplicarFiltros()">
+          <option value="20">20 / pág</option>
+          <option value="50">50 / pág</option>
+          <option value="100">100 / pág</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="limpiarFiltros()">✕ Limpiar</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>Sala/TAG</th><th>Código SEH</th><th>Descripción</th>
+              <th>Disc.</th><th>Crit.</th><th>Rev.</th><th>Estatus</th>
+              <th>Último Envío</th><th>Emisiones</th><th>Archivos</th><th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-docs"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="paginacion"></div>
+    </div>
+
+    <!-- ═══ DETALLE ═══ -->
+    <div id="view-detalle" class="view">
+      <div class="page-header">
+        <button class="btn btn-ghost btn-sm" onclick="volverLista()">← Volver</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" onclick="abrirModalEmision()">📤 Registrar Envío</button>
+          <button class="btn btn-warning btn-sm" id="btn-email" onclick="abrirModalEmail()">✉️ Enviar por Email</button>
+          <button class="btn btn-ghost btn-sm" onclick="abrirEditarDoc()">✏️ Editar</button>
+          <button class="btn btn-danger btn-sm" onclick="eliminarDocumento()">🗑 Eliminar</button>
+        </div>
+      </div>
+      <div id="detalle-header" class="detail-header"></div>
+      <div id="detalle-meta" class="detail-meta"></div>
+
+      <!-- ADJUNTOS -->
+      <div class="adj-section">
+        <h3>📎 Archivos Adjuntos <span id="adj-count" class="badge badge-gray">0</span></h3>
+        <div id="adj-list" class="adj-list"></div>
+        <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()"
+             ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+          <input type="file" id="file-input" multiple onchange="subirArchivos(this.files)"/>
+          <div style="font-size:28px">📂</div>
+          <p>Haz clic o arrastra archivos aquí para adjuntarlos</p>
+          <p style="font-size:11px;color:#94a3b8;margin-top:4px">PDF, imágenes, Word, Excel, AutoCAD…</p>
+        </div>
+      </div>
+
+      <!-- TIMELINE EMISIONES -->
+      <div class="card">
+        <h3 style="font-size:14px;font-weight:700;margin-bottom:16px">📋 Historial de Emisiones</h3>
+        <div id="detalle-timeline" class="timeline"></div>
+      </div>
+    </div>
+
+    <!-- ═══ NUEVO DOCUMENTO ═══ -->
+    <div id="view-nuevo" class="view">
+      <div class="page-header"><h1>➕ Nuevo Documento</h1></div>
+      <div class="card">
+        <form id="form-nuevo" onsubmit="guardarNuevo(event)">
+          <div class="form-grid">
+            <div class="form-group"><label>N° Ítem</label><input type="number" name="item"/></div>
+            <div class="form-group"><label>Sala / TAG *</label><input type="text" name="sala_tag" required/></div>
+            <div class="form-group"><label>Código SEGURA *</label><input type="text" name="codigo_segura" required/></div>
+            <div class="form-group"><label>Código INN</label><input type="text" name="codigo_inn"/></div>
+            <div class="form-group"><label>Código CODELCO</label><input type="text" name="codigo_codelco"/></div>
+            <div class="form-group"><label>Tipo de Ingeniería</label><input type="text" name="tipo_ing"/></div>
+          </div>
+          <div class="form-grid full" style="margin-top:12px">
+            <div class="form-group"><label>Descripción *</label><textarea name="descripcion" required rows="2"></textarea></div>
+          </div>
+          <div class="form-grid cols3" style="margin-top:12px">
+            <div class="form-group">
+              <label>Disciplina</label>
+              <select name="disciplina">
+                <option value="">—</option>
+                <option>CP</option><option>ME</option><option>EL</option>
+                <option>CI</option><option>IN</option><option>QA</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Criticidad</label>
+              <select name="criticidad">
+                <option value="">—</option>
+                <option value="1">1 — Alta</option><option value="2">2 — Media</option>
+                <option value="3">3 — Normal</option><option value="*">* — Especial</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Estatus</label>
+              <select name="estatus">
+                <option>En desarrollo</option><option>Entregado</option>
+                <option>Revisión INN</option><option>Aprobado</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Revisión Actual</label><input type="text" name="revision_actual" placeholder="Ej: 0, A, B"/></div>
+            <div class="form-group"><label>Compromiso de Entrega</label><input type="text" name="compromiso_entrega"/></div>
+            <div class="form-group"><label>Deadline Cliente</label><input type="text" name="deadline_cliente"/></div>
+          </div>
+          <div class="form-grid full" style="margin-top:12px">
+            <div class="form-group"><label>Comentario Interno</label><textarea name="comentario_interno" rows="2"></textarea></div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-ghost" onclick="volverLista()">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar Documento</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ═══ IMPORTAR ═══ -->
+    <div id="view-importar" class="view">
+      <div class="page-header"><h1>📥 Importar desde Excel</h1></div>
+      <div class="card" style="max-width:500px">
+        <p style="font-size:13px;color:#475569;margin-bottom:16px">
+          Importa documentos desde el archivo Excel original.<br>
+          Lee la hoja <strong>MASTER INGENIERÍA CLIENTE</strong>.
+        </p>
+        <form id="form-importar" onsubmit="importarExcel(event)">
+          <div class="form-group" style="margin-bottom:14px">
+            <label>Archivo Excel (.xlsx)</label>
+            <input type="file" id="excel-file" accept=".xlsx" required style="padding:6px"/>
+          </div>
+          <div id="import-progress" style="display:none;margin-bottom:12px">
+            <div style="font-size:12px;color:#475569;margin-bottom:5px" id="import-msg">Procesando…</div>
+            <div style="background:#e2e8f0;border-radius:4px;height:7px"><div id="import-bar" style="height:100%;background:#2563eb;border-radius:4px;width:0%;transition:width .3s"></div></div>
+          </div>
+          <div id="import-result" style="display:none;margin-bottom:12px;padding:10px 12px;border-radius:8px;font-size:13px"></div>
+          <button type="submit" class="btn btn-primary">Importar</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ═══ AJUSTES EMAIL ═══ -->
+    <div id="view-ajustes" class="view">
+      <div class="page-header"><h1>⚙️ Configuración de Email (SMTP)</h1></div>
+      <div class="card" style="max-width:560px">
+        <div class="smtp-note">
+          <strong>Gmail:</strong> Usa <em>smtp.gmail.com</em>, puerto 587, TLS activado.<br>
+          La contraseña debe ser una <strong>contraseña de aplicación</strong> (Google → Seguridad → Contraseñas de aplicación).
+        </div>
+        <form id="form-smtp" onsubmit="guardarSMTP(event)">
+          <div class="settings-section">
+            <h3>Servidor</h3>
+            <div class="form-grid">
+              <div class="form-group"><label>Host SMTP</label><input type="text" name="host" placeholder="smtp.gmail.com"/></div>
+              <div class="form-group"><label>Puerto</label><input type="number" name="port" placeholder="587"/></div>
+            </div>
+            <div class="form-group" style="margin-top:10px">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                <input type="checkbox" name="use_tls" style="width:16px;height:16px"/> Usar TLS (STARTTLS) — recomendado
+              </label>
+            </div>
+          </div>
+          <div class="settings-section">
+            <h3>Credenciales</h3>
+            <div class="form-grid">
+              <div class="form-group"><label>Usuario / Email</label><input type="email" name="usuario" placeholder="tucuenta@gmail.com"/></div>
+              <div class="form-group"><label>Contraseña de Aplicación</label><input type="password" name="password" placeholder="••••••••••••"/></div>
+            </div>
+            <div class="form-group" style="margin-top:10px"><label>Nombre Remitente (opcional)</label><input type="text" name="remitente" placeholder="Ingeniería SEH — OT6021"/></div>
+          </div>
+          <div class="form-actions" style="padding-top:14px">
+            <button type="button" class="btn btn-ghost" id="btn-test-smtp" onclick="testSMTP()">📡 Probar conexión</button>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══ MODAL: REGISTRAR ENVÍO ══ -->
+<div class="modal-bg" id="modal-emision">
+  <div class="modal">
+    <button class="close" onclick="cerrarModal('modal-emision')">×</button>
+    <h2>📤 Registrar Envío al Cliente</h2>
+    <form id="form-emision" onsubmit="guardarEmision(event)">
+      <div class="form-grid">
+        <div class="form-group"><label>N° Emisión *</label><input type="number" name="numero" id="em-numero" required min="1"/></div>
+        <div class="form-group"><label>Revisión</label><input type="text" name="revision" placeholder="0, A, B, C…"/></div>
+        <div class="form-group"><label>Transmittal SEH</label><input type="number" name="transmittal_seh"/></div>
+        <div class="form-group"><label>Fecha de Envío *</label><input type="date" name="fecha_envio" required/></div>
+      </div>
+      <div class="form-grid" style="margin-top:12px">
+        <div class="form-group"><label>Transmittal Cliente</label><input type="text" name="transmittal_cliente"/></div>
+        <div class="form-group"><label>Fecha Respuesta Cliente</label><input type="date" name="fecha_respuesta"/></div>
+        <div class="form-group"><label>Días de Respuesta</label><input type="number" name="tiempo_respuesta" min="0"/></div>
+      </div>
+      <div class="form-group" style="margin-top:12px">
+        <label>Resultado / Observaciones</label>
+        <select name="observaciones">
+          <option value="">Sin respuesta aún</option>
+          <option>Aprobado</option>
+          <option>Aprobado con comentarios menores / pasar a 0</option>
+          <option>Aprobado con comentarios / Emitir en Rev_0</option>
+          <option>Comentado / Emitir Rev siguiente</option>
+          <option>Rechazado</option>
+          <option>En revisión INN</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-ghost" onclick="cerrarModal('modal-emision')">Cancelar</button>
+        <button type="submit" class="btn btn-success">Guardar Envío</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══ MODAL: EDITAR DOCUMENTO ══ -->
+<div class="modal-bg" id="modal-editar">
+  <div class="modal">
+    <button class="close" onclick="cerrarModal('modal-editar')">×</button>
+    <h2>✏️ Editar Documento</h2>
+    <form id="form-editar" onsubmit="guardarEdicion(event)">
+      <div class="form-grid">
+        <div class="form-group"><label>Sala / TAG</label><input type="text" name="sala_tag"/></div>
+        <div class="form-group"><label>Código SEGURA</label><input type="text" name="codigo_segura"/></div>
+        <div class="form-group"><label>Código INN</label><input type="text" name="codigo_inn"/></div>
+        <div class="form-group"><label>Código CODELCO</label><input type="text" name="codigo_codelco"/></div>
+      </div>
+      <div class="form-grid full" style="margin-top:12px">
+        <div class="form-group"><label>Descripción</label><textarea name="descripcion" rows="2"></textarea></div>
+      </div>
+      <div class="form-grid cols3" style="margin-top:12px">
+        <div class="form-group">
+          <label>Disciplina</label>
+          <select name="disciplina">
+            <option value="">—</option>
+            <option>CP</option><option>ME</option><option>EL</option>
+            <option>CI</option><option>IN</option><option>QA</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Criticidad</label>
+          <select name="criticidad">
+            <option value="">—</option>
+            <option value="1">1 — Alta</option><option value="2">2 — Media</option>
+            <option value="3">3 — Normal</option><option value="*">* — Especial</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Estatus</label>
+          <select name="estatus">
+            <option>En desarrollo</option><option>Entregado</option><option>ENTREGADO</option>
+            <option>Revisión INN</option><option>Aprobado</option>
+            <option>Aprobado con comentarios menores / pasar a 0</option>
+            <option>Aprobado con comentarios / Emitir en Rev_0</option>
+            <option>Comentado / Emitir Rev siguiente</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Revisión Actual</label><input type="text" name="revision_actual"/></div>
+        <div class="form-group"><label>Deadline Cliente</label><input type="text" name="deadline_cliente"/></div>
+        <div class="form-group"><label>Compromiso Entrega</label><input type="text" name="compromiso_entrega"/></div>
+      </div>
+      <div class="form-grid full" style="margin-top:12px">
+        <div class="form-group"><label>Comentario Interno</label><textarea name="comentario_interno" rows="2"></textarea></div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-ghost" onclick="cerrarModal('modal-editar')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══ MODAL: ENVIAR EMAIL ══ -->
+<div class="modal-bg" id="modal-email">
+  <div class="modal wide">
+    <button class="close" onclick="cerrarModal('modal-email')">×</button>
+    <h2>✉️ Enviar Documento por Email</h2>
+    <form id="form-email" onsubmit="enviarEmail(event)">
+      <div class="form-grid full">
+        <div class="form-group">
+          <label>Destinatarios * (separados por coma)</label>
+          <input type="text" name="destinatarios" required placeholder="email1@cliente.com, email2@cliente.com"/>
+        </div>
+        <div class="form-group">
+          <label>Asunto *</label>
+          <input type="text" name="asunto" required id="email-asunto"/>
+        </div>
+        <div class="form-group">
+          <label>Cuerpo del mensaje</label>
+          <textarea name="cuerpo" id="email-cuerpo" rows="6"></textarea>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:12px">
+        <label>Adjuntar archivos del documento</label>
+        <div class="email-adj-list" id="email-adj-list">
+          <p style="font-size:12px;color:#94a3b8;padding:4px">Sin archivos adjuntos disponibles</p>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-ghost" onclick="cerrarModal('modal-email')">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btn-send-email">📨 Enviar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══ MODAL: PREVIEW ARCHIVO ══ -->
+<div class="modal-bg" id="modal-preview">
+  <div class="modal preview-modal wide">
+    <div class="preview-toolbar">
+      <h3 id="preview-title">—</h3>
+      <div class="preview-actions">
+        <a id="preview-download" class="btn btn-ghost btn-sm" download>⬇️ Descargar</a>
+        <button class="btn btn-ghost btn-sm" onclick="cerrarModal('modal-preview')">✕ Cerrar</button>
+      </div>
+    </div>
+    <div class="preview-body" id="preview-body"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ════════════ STATE ════════════
+let currentDocId = null;
+let currentPage = 1;
+let filterTimer = null;
+let currentAdjs = [];
+
+// ════════════ INIT ════════════
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('dash-fecha').textContent =
+    new Date().toLocaleDateString('es-CL', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  loadDashboard();
+  loadSmtpConfig();
+});
+
+// ════════════ NAVEGACIÓN ════════════
+function showView(name, el) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  if (name === 'dashboard') loadDashboard();
+  if (name === 'documentos') loadFiltrosYDocs();
+  if (name === 'nuevo') document.getElementById('form-nuevo').reset();
+}
+function irNuevo() { showView('nuevo', document.querySelector('nav li:nth-child(3) a')); }
+function volverLista() { showView('documentos', document.querySelector('nav li:nth-child(2) a')); }
+
+// ════════════ DASHBOARD ════════════
+async function loadDashboard() {
+  const d = await api('/api/dashboard');
+  if (!d) return;
+  document.getElementById('d-total').textContent = d.total_documentos;
+  document.getElementById('d-revision').textContent = d.en_revision;
+  document.getElementById('d-aprobados').textContent = d.aprobados;
+  document.getElementById('d-entregados').textContent = d.entregados;
+  document.getElementById('d-emisiones').textContent = d.total_emisiones;
+  renderBarChart('chart-disciplina', d.por_disciplina, '#60a5fa');
+  renderBarChart('chart-estatus', d.por_estatus, '#22c55e');
+  document.getElementById('dash-recientes').innerHTML = d.recientes.map(r => `
+    <tr>
+      <td data-label="Código">${r.codigo_segura||'—'}</td>
+      <td data-label="Sala/TAG">${r.sala_tag||'—'}</td>
+      <td data-label="Descripción" class="td-desc">${r.descripcion||'—'}</td>
+      <td data-label="Estatus">${badgeEstatus(r.estatus)}</td>
+      <td data-label="Envío" style="font-size:12px;color:#64748b">${r.fecha_ultimo_envio||'—'}</td>
+    </tr>`).join('');
+}
+
+function renderBarChart(id, obj, color) {
+  const el = document.getElementById(id);
+  if (!obj || !Object.keys(obj).length) { el.innerHTML = '<p style="font-size:12px;color:#94a3b8">Sin datos</p>'; return; }
+  const max = Math.max(...Object.values(obj));
+  el.innerHTML = Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([l,c]) => `
+    <div class="bar-row">
+      <div class="bar-label" title="${l}">${l}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${max?Math.round(c/max*100):0}%;background:${color}"></div></div>
+      <div class="bar-count">${c}</div>
+    </div>`).join('');
+}
+
+// ════════════ DOCUMENTOS + PAGINACIÓN ════════════
+async function loadFiltrosYDocs() {
+  const f = await api('/api/documentos/filtros');
+  if (!f) return;
+  populateSelect('f-tag', f.sala_tags, 'Todas las Salas');
+  populateSelect('f-disc', f.disciplinas, 'Todas las Disciplinas');
+  populateSelect('f-crit', f.criticidades, 'Criticidad');
+  populateSelect('f-est', f.estatuses, 'Todos los Estatus');
+  await aplicarFiltros();
+}
+
+function populateSelect(id, opts, def) {
+  const s = document.getElementById(id), cur = s.value;
+  s.innerHTML = `<option value="">${def}</option>` + opts.map(o=>`<option value="${o}"${o===cur?' selected':''}>${o}</option>`).join('');
+}
+
+function resetPage() { currentPage = 1; }
+function debounceFilter() { clearTimeout(filterTimer); filterTimer = setTimeout(() => { resetPage(); aplicarFiltros(); }, 350); }
+
+async function aplicarFiltros() {
+  const params = new URLSearchParams({ page: currentPage, limit: document.getElementById('f-limit').value || 20 });
+  const buscar = document.getElementById('f-buscar').value.trim();
+  const tag = document.getElementById('f-tag').value;
+  const disc = document.getElementById('f-disc').value;
+  const crit = document.getElementById('f-crit').value;
+  const est = document.getElementById('f-est').value;
+  if (buscar) params.set('buscar', buscar);
+  if (tag) params.set('sala_tag', tag);
+  if (disc) params.set('disciplina', disc);
+  if (crit) params.set('criticidad', crit);
+  if (est) params.set('estatus', est);
+  const data = await api('/api/documentos?' + params.toString());
+  if (!data) return;
+  renderTabla(data.items);
+  renderPaginacion(data);
+}
+
+function limpiarFiltros() {
+  document.getElementById('f-buscar').value = '';
+  ['f-tag','f-disc','f-crit','f-est'].forEach(id => document.getElementById(id).value = '');
+  resetPage(); aplicarFiltros();
+}
+
+function renderTabla(docs) {
+  const tbody = document.getElementById('tabla-docs');
+  if (!docs.length) {
+    tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;color:#94a3b8;padding:30px">Sin documentos</td></tr>';
+    return;
+  }
+  tbody.innerHTML = docs.map(d => `
+    <tr>
+      <td data-label="#">${d.item||'—'}</td>
+      <td data-label="Sala/TAG"><strong>${d.sala_tag||'—'}</strong></td>
+      <td data-label="Código SEH"><code style="font-size:11px;background:#f1f5f9;padding:2px 5px;border-radius:4px">${d.codigo_segura||'—'}</code></td>
+      <td data-label="Descripción" class="td-desc" title="${d.descripcion||''}">${d.descripcion||'—'}</td>
+      <td data-label="Disc.">${d.disciplina ? `<span class="badge badge-gray">${d.disciplina}</span>` : '—'}</td>
+      <td data-label="Crit.">${badgeCriticidad(d.criticidad)}</td>
+      <td data-label="Rev.">${d.revision_actual ? `<span class="badge badge-blue">${d.revision_actual}</span>` : '—'}</td>
+      <td data-label="Estatus">${badgeEstatus(d.estatus)}</td>
+      <td data-label="Último Envío" style="font-size:12px;color:#64748b">${d.fecha_ultimo_envio||'—'}</td>
+      <td data-label="Emisiones" style="text-align:center"><span class="badge badge-purple">${d.num_emisiones}</span></td>
+      <td data-label="Archivos" style="text-align:center">${d.num_adjuntos ? `<span class="badge badge-orange">📎 ${d.num_adjuntos}</span>` : '—'}</td>
+      <td class="td-actions"><button class="btn btn-ghost btn-sm" onclick="abrirDetalle(${d.id})">Ver →</button></td>
+    </tr>`).join('');
+}
+
+function renderPaginacion({ page, pages, total, limit }) {
+  const el = document.getElementById('paginacion');
+  const from = (page-1)*limit+1, to = Math.min(page*limit, total);
+  let html = `<button onclick="irPagina(${page-1})" ${page<=1?'disabled':''}>‹ Anterior</button>`;
+  const start = Math.max(1, page-2), end = Math.min(pages, page+2);
+  if (start > 1) html += `<button onclick="irPagina(1)">1</button>${start>2?'<span style="padding:0 4px;color:#94a3b8">…</span>':''}`;
+  for (let i = start; i <= end; i++)
+    html += `<button onclick="irPagina(${i})" class="${i===page?'active':''}">${i}</button>`;
+  if (end < pages) html += `${end<pages-1?'<span style="padding:0 4px;color:#94a3b8">…</span>':''}<button onclick="irPagina(${pages})">${pages}</button>`;
+  html += `<button onclick="irPagina(${page+1})" ${page>=pages?'disabled':''}>Siguiente ›</button>`;
+  html += `<span class="info">${from}–${to} de ${total} documentos</span>`;
+  el.innerHTML = html;
+}
+
+function irPagina(p) { currentPage = p; aplicarFiltros(); window.scrollTo(0,0); }
+
+// ════════════ DETALLE ════════════
+async function abrirDetalle(id) {
+  currentDocId = id;
+  const d = await api('/api/documentos/' + id);
+  if (!d) return;
+  currentAdjs = d.adjuntos || [];
+
+  document.getElementById('detalle-header').innerHTML = `
+    <h2>${d.descripcion || 'Sin descripción'}</h2>
+    <p>${[d.codigo_segura, d.codigo_inn, d.sala_tag].filter(Boolean).join(' · ')}</p>`;
+
+  document.getElementById('detalle-meta').innerHTML = [
+    ['Estatus', badgeEstatus(d.estatus)],
+    ['Disciplina', d.disciplina||'—'],
+    ['Criticidad', badgeCriticidad(d.criticidad)],
+    ['Revisión', d.revision_actual||'—'],
+    ['TRL / Acta', d.acta_trl||'—'],
+    ['Último Envío', d.fecha_ultimo_envio||'—'],
+    ['Resp. Cliente', d.fecha_respuesta_cliente||'—'],
+    ['Deadline', d.deadline_cliente||'—'],
+    ['Compromiso', d.compromiso_entrega||'—'],
+    ['Comentario', d.comentario_interno||'—'],
+  ].map(([l,v]) => `<div class="meta-item"><div class="m-lbl">${l}</div><div class="m-val">${v}</div></div>`).join('');
+
+  renderAdjuntos(d.adjuntos || []);
+  renderTimeline(d.emisiones || []);
+  showView('detalle', null);
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+}
+
+function renderTimeline(emisiones) {
+  const tl = document.getElementById('detalle-timeline');
+  if (!emisiones.length) { tl.innerHTML = '<p style="color:#94a3b8;font-size:13px">Sin emisiones registradas.</p>'; return; }
+  tl.innerHTML = emisiones.map(e => {
+    const obs = e.observaciones || '';
+    const dot = obs.toLowerCase().includes('aprobado') && !obs.toLowerCase().includes('comentario') ? 'approved'
+               : (obs.toLowerCase().includes('comentad') || obs.toLowerCase().includes('menor')) ? 'commented' : '';
+    return `<div class="tl-item">
+      <div class="tl-dot ${dot}"></div>
+      <div class="tl-card">
+        <div class="tl-title">
+          <span>Emisión N° ${e.numero}</span>
+          ${e.revision ? `<span class="badge badge-blue">Rev. ${e.revision}</span>` : ''}
+          ${obs ? badgeEstatus(obs) : ''}
+        </div>
+        <div class="tl-row">
+          ${e.transmittal_seh ? `<div class="tl-field">TRL SEH: <span>${e.transmittal_seh}</span></div>` : ''}
+          ${e.fecha_envio ? `<div class="tl-field">Enviado: <span>${e.fecha_envio}</span></div>` : ''}
+          ${e.transmittal_cliente ? `<div class="tl-field">TRL Cliente: <span>${e.transmittal_cliente}</span></div>` : ''}
+          ${e.fecha_respuesta ? `<div class="tl-field">Respuesta: <span>${e.fecha_respuesta}</span></div>` : ''}
+          ${e.tiempo_respuesta != null ? `<div class="tl-field">Días resp.: <span>${e.tiempo_respuesta}</span></div>` : ''}
+        </div>
+        ${obs ? `<div class="tl-obs">${obs}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════ ADJUNTOS ════════════
+function renderAdjuntos(adjs) {
+  currentAdjs = adjs;
+  document.getElementById('adj-count').textContent = adjs.length;
+  const list = document.getElementById('adj-list');
+  if (!adjs.length) { list.innerHTML = '<p style="font-size:12px;color:#94a3b8;padding:4px">Sin archivos adjuntos.</p>'; return; }
+  list.innerHTML = adjs.map(a => `
+    <div class="adj-item" id="adj-item-${a.id}">
+      <div class="adj-icon">${adjIcon(a.content_type)}</div>
+      <div class="adj-info">
+        <div class="adj-name">${a.nombre_original}</div>
+        <div class="adj-meta">${formatBytes(a.tamanio)} · ${a.creado_en ? a.creado_en.slice(0,10) : ''}</div>
+      </div>
+      <div class="adj-actions">
+        ${isPreviewable(a.content_type) ? `<button class="btn btn-ghost btn-sm" onclick="previewArchivo(${a.id},'${escHtml(a.nombre_original)}','${a.content_type}')">👁 Ver</button>` : ''}
+        <a class="btn btn-ghost btn-sm" href="/api/adjuntos/${a.id}/download" download="${escHtml(a.nombre_original)}">⬇️</a>
+        <button class="btn btn-danger btn-sm" onclick="eliminarAdjunto(${a.id})">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+async function subirArchivos(files) {
+  for (const file of files) {
+    const fd = new FormData();
+    fd.append('file', file);
+    const res = await fetch(`/api/documentos/${currentDocId}/adjuntos`, { method: 'POST', body: fd });
+    if (res.ok) {
+      toast(`✅ ${file.name} subido`, 'success');
+    } else {
+      const e = await res.json().catch(() => ({}));
+      toast('Error: ' + (e.detail || file.name), 'error');
+    }
+  }
+  document.getElementById('file-input').value = '';
+  const d = await api('/api/documentos/' + currentDocId);
+  if (d) renderAdjuntos(d.adjuntos || []);
+}
+
+async function eliminarAdjunto(adjId) {
+  if (!confirm('¿Eliminar este archivo?')) return;
+  const r = await api('/api/adjuntos/' + adjId, 'DELETE');
+  if (r && r.mensaje) {
+    toast('Archivo eliminado');
+    document.getElementById('adj-item-' + adjId)?.remove();
+    currentAdjs = currentAdjs.filter(a => a.id !== adjId);
+    document.getElementById('adj-count').textContent = currentAdjs.length;
+  }
+}
+
+function onDragOver(e) { e.preventDefault(); document.getElementById('dropzone').classList.add('drag-over'); }
+function onDragLeave() { document.getElementById('dropzone').classList.remove('drag-over'); }
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropzone').classList.remove('drag-over');
+  subirArchivos(e.dataTransfer.files);
+}
+
+// ════════════ PREVIEW ════════════
+function previewArchivo(adjId, nombre, ct) {
+  const url = `/api/adjuntos/${adjId}/preview`;
+  document.getElementById('preview-title').textContent = nombre;
+  document.getElementById('preview-download').href = `/api/adjuntos/${adjId}/download`;
+  document.getElementById('preview-download').setAttribute('download', nombre);
+  const body = document.getElementById('preview-body');
+  if (ct && ct.startsWith('image/')) {
+    body.innerHTML = `<img src="${url}" alt="${escHtml(nombre)}" style="max-width:100%;max-height:75vh;object-fit:contain;padding:16px"/>`;
+  } else if (ct === 'application/pdf') {
+    body.innerHTML = `<iframe src="${url}#toolbar=1" style="width:100%;height:75vh;border:none;border-radius:0 0 12px 12px"></iframe>`;
+  } else if (ct === 'text/plain') {
+    fetch(url).then(r=>r.text()).then(t=>{
+      body.innerHTML = `<pre style="color:#e2e8f0;padding:20px;white-space:pre-wrap;max-width:100%;font-size:13px">${escHtml(t)}</pre>`;
+    });
+  } else {
+    body.innerHTML = `<div class="preview-unsupported"><p style="font-size:36px">📄</p><p style="margin-top:12px">Vista previa no disponible para este tipo de archivo.</p><a href="/api/adjuntos/${adjId}/download" class="btn btn-primary" style="margin-top:16px" download="${escHtml(nombre)}">⬇️ Descargar</a></div>`;
+  }
+  abrirModal('modal-preview');
+}
+
+// ════════════ EMAIL ════════════
+function abrirModalEmail() {
+  const header = document.getElementById('detalle-header');
+  const h2 = header.querySelector('h2')?.textContent || '';
+  const p = header.querySelector('p')?.textContent || '';
+  document.getElementById('email-asunto').value = `[OT6021] Transmittal: ${p}`;
+  document.getElementById('email-cuerpo').value =
+    `Estimado/a,\n\nAdjuntamos documentación correspondiente al proyecto OT6021.\n\n` +
+    `Documento: ${h2}\n${p}\n\nQuedamos atentos a sus comentarios.\n\nSaludos,\nIngeniería SEH`;
+  // Poblar adjuntos
+  const adjList = document.getElementById('email-adj-list');
+  if (!currentAdjs.length) {
+    adjList.innerHTML = '<p style="font-size:12px;color:#94a3b8;padding:4px">Sin archivos adjuntos disponibles.</p>';
+  } else {
+    adjList.innerHTML = currentAdjs.map(a => `
+      <label class="email-adj-item">
+        <input type="checkbox" value="${a.id}" checked/>
+        <span>${adjIcon(a.content_type)} ${a.nombre_original} <span style="color:#94a3b8;font-size:11px">(${formatBytes(a.tamanio)})</span></span>
+      </label>`).join('');
+  }
+  abrirModal('modal-email');
+}
+
+async function enviarEmail(e) {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const dest = fd.get('destinatarios').split(',').map(s=>s.trim()).filter(Boolean);
+  if (!dest.length) { toast('Ingresa al menos un destinatario', 'error'); return; }
+  const adjIds = [...document.querySelectorAll('#email-adj-list input[type=checkbox]:checked')].map(el=>parseInt(el.value));
+  const btn = document.getElementById('btn-send-email');
+  btn.disabled = true; btn.textContent = 'Enviando…';
+  const res = await api(`/api/documentos/${currentDocId}/enviar-email`, 'POST', {
+    destinatarios: dest, asunto: fd.get('asunto'), cuerpo: fd.get('cuerpo'), adjunto_ids: adjIds,
+  });
+  btn.disabled = false; btn.textContent = '📨 Enviar';
+  if (res && res.mensaje) {
+    toast('Email enviado correctamente', 'success');
+    cerrarModal('modal-email');
+  }
+}
+
+// ════════════ EMISIONES ════════════
+function abrirModalEmision() {
+  const items = document.querySelectorAll('#detalle-timeline .tl-item').length;
+  document.getElementById('form-emision').reset();
+  document.getElementById('em-numero').value = items + 1;
+  abrirModal('modal-emision');
+}
+
+async function guardarEmision(e) {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const body = {};
+  for (const [k,v] of fd.entries()) if (v !== '') body[k] = v;
+  if (body.numero) body.numero = parseInt(body.numero);
+  if (body.transmittal_seh) body.transmittal_seh = parseInt(body.transmittal_seh);
+  if (body.tiempo_respuesta) body.tiempo_respuesta = parseInt(body.tiempo_respuesta);
+  const r = await api('/api/documentos/' + currentDocId + '/emisiones', 'POST', body);
+  if (r && (r.id || r.mensaje)) {
+    toast('Envío registrado', 'success');
+    cerrarModal('modal-emision');
+    abrirDetalle(currentDocId);
+  }
+}
+
+// ════════════ NUEVO / EDITAR DOC ════════════
+async function guardarNuevo(e) {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const body = {};
+  for (const [k,v] of fd.entries()) if (v !== '') body[k] = v;
+  if (body.item) body.item = parseInt(body.item);
+  const r = await api('/api/documentos', 'POST', body);
+  if (r && r.id) { toast('Documento creado', 'success'); e.target.reset(); abrirDetalle(r.id); }
+}
+
+async function abrirEditarDoc() {
+  const d = await api('/api/documentos/' + currentDocId);
+  if (!d) return;
+  const form = document.getElementById('form-editar');
+  form.reset();
+  for (const [k,v] of Object.entries(d)) {
+    const el = form.elements[k];
+    if (el && v !== null && v !== undefined) el.value = v;
+  }
+  abrirModal('modal-editar');
+}
+
+async function guardarEdicion(e) {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const body = {};
+  for (const [k,v] of fd.entries()) body[k] = v || null;
+  const r = await api('/api/documentos/' + currentDocId, 'PUT', body);
+  if (r && r.mensaje) { toast('Documento actualizado', 'success'); cerrarModal('modal-editar'); abrirDetalle(currentDocId); }
+}
+
+async function eliminarDocumento() {
+  if (!confirm('¿Eliminar este documento y todas sus emisiones y archivos?')) return;
+  const r = await api('/api/documentos/' + currentDocId, 'DELETE');
+  if (r && r.mensaje) { toast('Documento eliminado'); volverLista(); }
+}
+
+// ════════════ SMTP ════════════
+async function loadSmtpConfig() {
+  const cfg = await api('/api/smtp-config');
+  if (!cfg) return;
+  const form = document.getElementById('form-smtp');
+  for (const [k,v] of Object.entries(cfg)) {
+    const el = form.elements[k];
+    if (!el) continue;
+    if (el.type === 'checkbox') el.checked = !!v;
+    else el.value = v || '';
+  }
+}
+
+async function guardarSMTP(e) {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const body = {};
+  for (const [k,v] of fd.entries()) body[k] = v;
+  body.use_tls = !!fd.get('use_tls');
+  body.port = parseInt(body.port) || 587;
+  const r = await api('/api/smtp-config', 'POST', body);
+  if (r && r.mensaje) toast('Configuración guardada', 'success');
+}
+
+async function testSMTP() {
+  const btn = document.getElementById('btn-test-smtp');
+  btn.disabled = true; btn.textContent = 'Probando…';
+  const r = await api('/api/smtp-config');
+  btn.disabled = false; btn.textContent = '📡 Probar conexión';
+  if (r && r.host) toast(`Config cargada: ${r.host}:${r.port}`, 'success');
+  else toast('No hay configuración guardada', 'error');
+}
+
+// ════════════ IMPORTAR ════════════
+async function importarExcel(e) {
+  e.preventDefault();
+  const file = document.getElementById('excel-file').files[0];
+  if (!file) return;
+  const prog = document.getElementById('import-progress');
+  const msg = document.getElementById('import-msg');
+  const bar = document.getElementById('import-bar');
+  const result = document.getElementById('import-result');
+  prog.style.display = 'block'; result.style.display = 'none';
+  msg.textContent = 'Leyendo archivo…'; bar.style.width = '20%';
+  const fd = new FormData(); fd.append('file', file);
+  try {
+    bar.style.width = '50%'; msg.textContent = 'Importando…';
+    const res = await fetch('/api/importar', { method: 'POST', body: fd });
+    bar.style.width = '100%';
+    const data = await res.json();
+    if (res.ok) {
+      result.style.cssText = 'display:block;background:#dcfce7;color:#166534;padding:10px 12px;border-radius:8px;font-size:13px;margin-bottom:12px';
+      result.textContent = `✅ ${data.importados} documentos importados, ${data.emisiones} emisiones registradas.`;
+    } else {
+      result.style.cssText = 'display:block;background:#fee2e2;color:#991b1b;padding:10px 12px;border-radius:8px;font-size:13px;margin-bottom:12px';
+      result.textContent = '❌ Error: ' + (data.detail || 'Error al importar');
+    }
+  } catch (err) {
+    bar.style.width = '100%';
+    result.style.cssText = 'display:block;background:#fee2e2;color:#991b1b;padding:10px 12px;border-radius:8px;font-size:13px;margin-bottom:12px';
+    result.textContent = '❌ Error de conexión';
+    result.style.display = 'block';
+  }
+}
+
+// ════════════ HELPERS ════════════
+function badgeEstatus(est) {
+  if (!est) return '<span class="badge badge-gray">—</span>';
+  const l = est.toLowerCase();
+  if (l.includes('aprobado') && !l.includes('comentario') && !l.includes('menor')) return `<span class="badge badge-green">${est}</span>`;
+  if (l.includes('aprobado')) return `<span class="badge badge-yellow">${est}</span>`;
+  if (l.includes('entregado')) return `<span class="badge badge-blue">${est}</span>`;
+  if (l.includes('revisión') || l.includes('revision') || l.includes('inn')) return `<span class="badge badge-yellow">${est}</span>`;
+  if (l.includes('rechazado')) return `<span class="badge badge-red">${est}</span>`;
+  if (l.includes('comentado')) return `<span class="badge badge-yellow">${est}</span>`;
+  return `<span class="badge badge-gray">${est}</span>`;
+}
+function badgeCriticidad(c) {
+  if (!c) return '—';
+  const m = {'1':'badge-red','2':'badge-yellow','3':'badge-green','*':'badge-purple'};
+  return `<span class="badge ${m[String(c)] || 'badge-gray'}">${c}</span>`;
+}
+function adjIcon(ct) {
+  if (!ct) return '📄';
+  if (ct === 'application/pdf') return '📕';
+  if (ct.startsWith('image/')) return '🖼️';
+  if (ct.includes('word') || ct.includes('document')) return '📝';
+  if (ct.includes('sheet') || ct.includes('excel')) return '📊';
+  if (ct.includes('zip') || ct.includes('compressed')) return '🗜️';
+  if (ct.includes('dwg') || ct.includes('cad')) return '📐';
+  return '📄';
+}
+function isPreviewable(ct) {
+  if (!ct) return false;
+  return ct === 'application/pdf' || ct.startsWith('image/') || ct === 'text/plain';
+}
+function formatBytes(b) {
+  if (!b) return '0 B';
+  if (b < 1024) return b + ' B';
+  if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+  return (b / 1048576).toFixed(1) + ' MB';
+}
+function escHtml(s) { return s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : ''; }
+
+function abrirModal(id) { document.getElementById(id).classList.add('open'); }
+function cerrarModal(id) {
+  document.getElementById(id).classList.remove('open');
+  if (id === 'modal-preview') document.getElementById('preview-body').innerHTML = '';
+}
+
+function toast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = type || '';
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3000);
+}
+
+async function api(url, method = 'GET', body = null) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({ detail: 'Error' }));
+    toast('❌ ' + (e.detail || 'Error'), 'error');
+    return null;
+  }
+  return res.json();
+}
+
+document.querySelectorAll('.modal-bg').forEach(bg =>
+  bg.addEventListener('click', e => { if (e.target === bg) { cerrarModal(bg.id); } })
+);
+</script>
+</body>
+</html>
